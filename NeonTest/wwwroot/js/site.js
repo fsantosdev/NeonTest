@@ -118,7 +118,7 @@ function getENV () {
         }
     } else {
         return {
-            "BASE_URL": ""
+            "BASE_URL": "https://neontestconversaomonetaria.azurewebsites.net/"
         }
     }
 }
