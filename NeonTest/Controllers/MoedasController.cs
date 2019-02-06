@@ -26,23 +26,6 @@ namespace NeonTest.Controllers
             return response;
         }
 
-        //[HttpGet]
-        //public async Task<Response> Cotacoes()
-        //{
-        //    Response response = null;
-        //    try
-        //    {
-        //        dynamic responseConteudo = await MoedaDomain.ListagemCotacoes();
-        //        response = new Response(true, 200, responseConteudo);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        response = new Response(false, 400, e);
-        //    }
-
-        //    return response;
-        //}
-
         [HttpPost]
         public Response ConverterMoeda(Moeda moedaOrigem, Moeda moedaDestino, double valor)
         {
