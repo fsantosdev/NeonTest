@@ -3,53 +3,79 @@ window.currencies = [];
 
 $(function () {
     window.ENV = getENV();
-    refreshList();
+    listaMoedas();
 
     $('#refresher').click(() => {
-        refreshList();
+        listaMoedas();
     });
 
 
     $('#formConversao').submit(evt => {
         evt.preventDefault();
-        const params = {
+        let params = {
             'moedaOrigem': $('#moedaOrigem').val(),
             'moedaDestino': $('#moedaDestino').val(),
             'valor': $('#valor').val()
         };
 
-        if(params.moedaOrigem == '' || params.moedaDestino == '' || params.valor == '') {
+        if(validaParametros(params)) {
             console.log(params);
-            $('#mainAlert').addClass('alert-warning');
-            $('#mainAlert').text('Por favor preencha as informações');
-            $('#mainAlert').alert();
-
-            setTimeout(() => {
-                $('#mainAlert').removeClass('alert-warning');
-                $('#mainAlert').alert('close');
-            }, 2000)
+            mostraAlerta('Por favor preencha todos os campos' , 'alert-warning', true);
             return;
         }
+
+        params.moedaDestino = window.currencies.filter(item => item.sigla === params.moedaDestino)[0];
+        params.moedaOrigem = window.currencies.filter(item => item.sigla === params.moedaOrigem)[0];
         
         requestFactory(
             'moedas/ConverterMoeda',
             'POST',
             params,
             (response) => {
-                console.info('EXECUTED CALLBACK');
-            }
-        );    
+                const _data = response.data;
+                console.log('EXECUTED', response);
+
+                $('#resultadoConversao').removeClass('d-none');
+                $('#resultadoConversao .title').text(`${_data.moedaOrigem.sigla} -> ${_data.moedaDestino.sigla}`);
+                $('#resultadoConversao #moedaDestinoCotacao').html(`${_data.moedaOrigem.valor}`);
+                $('#resultadoConversao #moedaOrigemCotacao').html(`${_data.moedaDestino.valor}`);
+
+                $('#resultadoConversao #quantidade').html(`<strong>Valor:</strong> ${_data.valor}`);
+                $('#resultadoConversao #resultado').html(`<strong>Resultado:</strong> ${_data.resultado.toFixed(4)}`);
+            });    
     });
 });
 
 
-function refreshList() {
+function validaParametros (params) {
+    return params.moedaOrigem == '' || params.moedaDestino == '' || params.valor == '';
+}
+
+function mostraAlerta(mensagem, tipo, autoEsconde) {
+    $('#mainAlert').addClass(`${tipo} show`);
+    $('#mainAlert').text(mensagem);
+    $('#mainAlert').alert();
+
+    if(autoEsconde){
+        setTimeout(() => {
+            escondeAlerta();
+        }, 2000)
+    }
+}
+
+function escondeAlerta() {
+    $('#mainAlert').removeAttr('class');
+    $('#mainAlert').addClass('alert fade hide')
+    $('#mainAlert').alert();
+}
+
+function listaMoedas () {
     requestFactory(
         'moedas/listagem',
         'GET',
         null,
         (response) => {
-            console.info('EXECUTED CALLBACK');
+            // console.info('EXECUTED CALLBACK');
             window.currencies = response.data;
 
             let optionsBuild = '';
@@ -65,25 +91,27 @@ function refreshList() {
     );
 }
 
-function requestFactory(_url, _method, _params, _callback) {
+function requestFactory (_url, _method, _params, _callback) {
     console.info(`${window.ENV.BASE_URL}${_url}`);
+    mostraAlerta('Carregando...', 'alert-info', false);
 
     $.ajax({
         url: `${ENV.BASE_URL}${_url}`,
         contentType: "application/json",
         method: _method,
-        data: _params
+        data: JSON.stringify(_params)
     })
     .then(response => {
         if (_callback)
             _callback(response);
     })
     .always(() => {
-        console.info('ENDED');
+        escondeAlerta();
+        // console.info('ENDED');
     });
 }
 
-function getENV() {
+function getENV () {
     if (window.location.href.indexOf('localhost') > -1) {
         return {
             "BASE_URL": "http://localhost:58204/"
