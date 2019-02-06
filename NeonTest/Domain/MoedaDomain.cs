@@ -46,7 +46,7 @@ namespace NeonTest.Domain
             return MoedaInstance.ListagemMoeda;
         }
 
-        public static async Task<Dictionary<string, double>> ListagemValores()
+        public static async Task<Dictionary<string, double>> ListagemCotacoes()
         {
             MoedaDAL MoedaInstance = MoedaDAL.GetInstance();
             if (ExisteCotacao(MoedaInstance))
