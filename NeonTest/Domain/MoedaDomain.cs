@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using NeonTest.Models;
 using NeonTest.DTO;
 using System.Diagnostics;
+using System.Linq;
 
 namespace NeonTest.Domain
 {
@@ -25,9 +26,26 @@ namespace NeonTest.Domain
 
             MoedaDTOInstance = await RequestAPILayer(MoedaDTOInstance, "list");
             MoedaDTOInstance = await RequestAPILayer(MoedaDTOInstance, "live");
+
             AdicionaMoedaNaListagem(MoedaListagemInstance, MoedaDTOInstance);
+            AtualizaValoresDeCotacao(MoedaListagemInstance, MoedaDTOInstance);
 
             return MoedaListagemInstance.ListagemMoeda;
+        }
+
+        private static void AtualizaValoresDeCotacao(MoedaListagemDTO MoedaListagemInstance, MoedaDTO MoedaDTOInstance)
+        {
+            foreach (KeyValuePair<string, double> cotacao in MoedaDTOInstance.DictionaryCotacoes)
+            {
+                MoedaListagemInstance.ListagemMoeda
+                    .Where(moeda => moeda.Sigla == cotacao.Key.Substring(3))
+                    .Select(moeda =>
+                    {
+                        moeda.Valor = cotacao.Value;
+                        return moeda;
+                    })
+                    .ToList();
+            }
         }
 
         private static async Task<MoedaDTO> RequestAPILayer(MoedaDTO MoedaDTOInstance, string endpoint)
