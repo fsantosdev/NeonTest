@@ -8,7 +8,40 @@ $(function () {
     $('#refresher').click(() => {
         refreshList();
     });
+
+
+    $('#formConversao').submit(evt => {
+        evt.preventDefault();
+        const params = {
+            'moedaOrigem': $('#moedaOrigem').val(),
+            'moedaDestino': $('#moedaDestino').val(),
+            'valor': $('#valor').val()
+        };
+
+        if(params.moedaOrigem == '' || params.moedaDestino == '' || params.valor == '') {
+            console.log(params);
+            $('#mainAlert').addClass('alert-warning');
+            $('#mainAlert').text('Por favor preencha as informações');
+            $('#mainAlert').alert();
+
+            setTimeout(() => {
+                $('#mainAlert').removeClass('alert-warning');
+                $('#mainAlert').alert('close');
+            }, 2000)
+            return;
+        }
+        
+        requestFactory(
+            'moedas/ConverterMoeda',
+            'POST',
+            params,
+            (response) => {
+                console.info('EXECUTED CALLBACK');
+            }
+        );    
+    });
 });
+
 
 function refreshList() {
     requestFactory(
