@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using NeonTest.Models;
+using NeonTest.DTO;
 using System.Diagnostics;
 
 namespace NeonTest.Domain
@@ -13,20 +13,29 @@ namespace NeonTest.Domain
         private const string BASE_URL = "http://www.apilayer.net/api/";
         private const string ACCESS_KEY = "access_key=f2a4deb9fa7acfe8e57bc92e48ccaa77";
 
-        //private static Dictionary<string, string> ListaMoedas { get; set; }
-        //private static Dictionary<string, double> ListaValores { get; set; }
-
-        public static async Task<Dictionary<string, string>> ListagemMoedas()
+        public static async Task<IList<Moeda>> ListagemMoedas()
         {
-            MoedaDAL MoedaInstance = MoedaDAL.GetInstance();
-            if (ExisteListagem(MoedaInstance))
+            MoedaListagemDTO MoedaListagemInstance = MoedaListagemDTO.GetInstance();
+            MoedaDTO MoedaDTOInstance = MoedaDTO.GetInstance();
+
+            if (ExisteListagem(MoedaListagemInstance))
             {
-                return MoedaInstance.ListagemMoeda;
+                return MoedaListagemInstance.ListagemMoeda;
             }
 
-            using (var client = new HttpClient())
+            MoedaDTOInstance = await RequestAPILayer(MoedaDTOInstance, "list");
+            MoedaDTOInstance = await RequestAPILayer(MoedaDTOInstance, "live");
+            AdicionaMoedaNaListagem(MoedaListagemInstance, MoedaDTOInstance);
+
+            return MoedaListagemInstance.ListagemMoeda;
+        }
+
+        private static async Task<MoedaDTO> RequestAPILayer(MoedaDTO MoedaDTOInstance, string endpoint)
+        {
+            using (HttpClient client = new HttpClient())
             {
-                var response = await client.GetAsync(BASE_URL + "list?" + ACCESS_KEY);
+                FormattableString requestURL = $"{BASE_URL}{endpoint}?{ACCESS_KEY}";
+                HttpResponseMessage response = await client.GetAsync(requestURL.ToString());
                 string responseString = String.Empty;
 
                 if (response.IsSuccessStatusCode)
@@ -34,7 +43,7 @@ namespace NeonTest.Domain
                     responseString = await response.Content.ReadAsStringAsync();
                     try
                     {
-                        MoedaInstance = Newtonsoft.Json.JsonConvert.DeserializeObject<MoedaDAL>(responseString);
+                        MoedaDTOInstance.setResponse(Newtonsoft.Json.JsonConvert.DeserializeObject<MoedaDTO>(responseString));
                     }
                     catch (Exception e)
                     {
@@ -42,63 +51,49 @@ namespace NeonTest.Domain
                     }
                 }
             }
-            
-            return MoedaInstance.ListagemMoeda;
+
+            return MoedaDTOInstance;
         }
 
-        public static async Task<Dictionary<string, double>> ListagemCotacoes()
+        private static void AdicionaMoedaNaListagem(MoedaListagemDTO MoedaListagemInstance, MoedaDTO MoedaDTOInstance)
         {
-            MoedaDAL MoedaInstance = MoedaDAL.GetInstance();
-            if (ExisteCotacao(MoedaInstance))
+            foreach (KeyValuePair<string, string> cotacao in MoedaDTOInstance.DictionaryMoedas)
             {
-                return MoedaInstance.ListagemCotacoes;
+                Moeda Moeda = MoedaDTO.Create(cotacao.Key, cotacao.Value);
+                MoedaListagemInstance.ListagemMoeda.Add(Moeda);
             }
-
-            MoedaDAL responseContent = MoedaDAL.GetInstance();
-            using (var client = new HttpClient())
-            {
-                var response = await client.GetAsync(BASE_URL + "live?" + ACCESS_KEY);
-                string responseString = String.Empty;
-
-                if (response.IsSuccessStatusCode)
-                {
-                    responseString = await response.Content.ReadAsStringAsync();
-                    try
-                    {
-                        responseContent = Newtonsoft.Json.JsonConvert.DeserializeObject<MoedaDAL>(responseString);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine(e);
-                    }
-                }
-            }
-            
-            return MoedaInstance.ListagemCotacoes;
         }
 
-        private static bool ExisteListagem(MoedaDAL moedaInstance)
+        private static bool ExisteListagem(MoedaListagemDTO moedaInstance)
         {
             bool ExisteListagem = moedaInstance.ListagemMoeda.Count > 0;
             return ExisteListagem;
         }
 
-        private static bool ExisteCotacao(MoedaDAL moedaInstance)
-        {
-            bool ExisteCotacao = moedaInstance.ListagemCotacoes.Count > 0;
-            return ExisteCotacao;
-        }
 
-        public static double Converte(string siglaOrigem, string siglaDestino, double valor)
+        public static double Converte(Moeda moedaOrigem, Moeda moedaDestino, double valor)
         {
-            MoedaDAL MoedaInstance = MoedaDAL.GetInstance();
-            double origemValor = MoedaInstance.ListagemCotacoes.GetValueOrDefault<string, double>("USD" + siglaOrigem);
-            double destinoValor = MoedaInstance.ListagemCotacoes.GetValueOrDefault<string, double>("USD" + siglaDestino);
-
-            double origemConversao = origemValor < 1 ? valor * origemValor : valor / origemValor;
-            double destinoConversao = destinoValor < 1 ? valor * origemConversao : valor / origemConversao;
+            double origemConversao = CalculaConversaoParaDolar(moedaOrigem, valor);
+            double destinoConversao = CalculaConversaoParaMoedaDestino(moedaDestino, valor, origemConversao);
 
             return destinoConversao;
+        }
+
+        private static bool DecideTipoOperacao(double valor)
+        {
+            return valor < 1;
+        }
+
+        private static double CalculaConversaoParaDolar(Moeda moedaOrigem, double valor)
+        {
+            double Resultado = DecideTipoOperacao(moedaOrigem.Valor) ? valor * moedaOrigem.Valor : valor / moedaOrigem.Valor;
+            return Resultado;
+        }
+
+        private static double CalculaConversaoParaMoedaDestino(Moeda moedaDestino, double valor, double origemConversao)
+        {
+            double Resultado = DecideTipoOperacao(moedaDestino.Valor) ? valor * origemConversao : valor / origemConversao;
+            return Resultado;
         }
     }
 }

@@ -11,13 +11,13 @@ namespace NeonTest.Controllers
     public class MoedasController : Controller
     {
         [HttpGet]
-        public async Task<Response> ListagemMoedas()
+        public async Task<Response> Listagem()
         {
             Response response = null;
             try
             {
-                dynamic responseContent = await MoedaDomain.ListagemMoedas();
-                response = new Response(true, 200, responseContent);
+                dynamic responseConteudo = await MoedaDomain.ListagemMoedas();
+                response = new Response(true, 200, responseConteudo);
             }
             catch (Exception e) {
                 response = new Response(false, 400, e);
@@ -26,31 +26,31 @@ namespace NeonTest.Controllers
             return response;
         }
 
-        [HttpGet]
-        public async Task<Response> ListagemCotacoes()
-        {
-            Response response = null;
-            try
-            {
-                dynamic responseContent = await MoedaDomain.ListagemCotacoes();
-                response = new Response(true, 200, responseContent);
-            }
-            catch (Exception e)
-            {
-                response = new Response(false, 400, e);
-            }
+        //[HttpGet]
+        //public async Task<Response> Cotacoes()
+        //{
+        //    Response response = null;
+        //    try
+        //    {
+        //        dynamic responseConteudo = await MoedaDomain.ListagemCotacoes();
+        //        response = new Response(true, 200, responseConteudo);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        response = new Response(false, 400, e);
+        //    }
 
-            return response;
-        }
+        //    return response;
+        //}
 
         [HttpPost]
-        public Response ConverterMoeda(string siglaOrigem, string siglaDestino, double valor)
+        public Response ConverterMoeda(Moeda moedaOrigem, Moeda moedaDestino, double valor)
         {
             Response response = null;
             try
             {
-                dynamic responseContent = MoedaDomain.Converte(siglaOrigem, siglaDestino, valor);
-                response = new Response(true, 200, responseContent);
+                dynamic responseConteudo = MoedaDomain.Converte(moedaOrigem, moedaDestino, valor);
+                response = new Response(true, 200, responseConteudo);
             }
             catch (Exception e)
             {

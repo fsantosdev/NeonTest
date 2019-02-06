@@ -20,7 +20,7 @@ namespace NeonTest.Controllers
 
         public async Task<JsonResult> Test()
         {
-            var responseContent = new object();
+            var responseConteudo = new object();
             using (var client = new HttpClient())
             {
                 var response = await client.GetAsync(base_url);
@@ -29,11 +29,11 @@ namespace NeonTest.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     responseString = await response.Content.ReadAsStringAsync();
-                    responseContent = Newtonsoft.Json.JsonConvert.DeserializeObject(responseString);
+                    responseConteudo = Newtonsoft.Json.JsonConvert.DeserializeObject(responseString);
                 }
             }
 
-            return Json(responseContent);
+            return Json(responseConteudo);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

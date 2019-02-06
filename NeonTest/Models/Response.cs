@@ -11,15 +11,15 @@ namespace NeonTest.Models
         {
         }
 
-        public Response(bool success, int code, dynamic data)
+        public Response(bool status, int codigo, dynamic data)
         {
-            this.Success = success;
-            this.Code = code;
+            this.Status = status;
+            this.Codigo = codigo;
             this.Data = data;
         }
 
-        public bool Success { get; private set; }
-        public int Code { get; private set; }
+        public bool Status { get; private set; }
+        public int Codigo { get; private set; }
         public dynamic Data { get; private set; }
     }
 }
