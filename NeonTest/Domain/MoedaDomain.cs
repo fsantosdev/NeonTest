@@ -93,28 +93,57 @@ namespace NeonTest.Domain
 
         public static ResponseConversao Converte(Moeda moedaOrigem, Moeda moedaDestino, double valor)
         {
-            double origemConversao = CalculaConversaoParaDolar(moedaOrigem, valor);
-            double destinoConversao = CalculaConversaoParaMoedaDestino(moedaDestino, valor, origemConversao);
-            ResponseConversao response = new ResponseConversao(moedaOrigem, moedaDestino, valor, destinoConversao);
+            double resultado = double.MinValue;
+            if (ValidaMoedasIguals(moedaOrigem, moedaDestino))
+            {
+                resultado = valor;
+            }
+            else
+            {
+                double origemConversao = CalculaConversaoParaDolar(moedaOrigem, valor);
+                resultado = CalculaConversaoParaMoedaDestino(moedaDestino, origemConversao);
+            }
 
+            ResponseConversao response = new ResponseConversao(moedaOrigem, moedaDestino, valor, resultado);
             return response;
+        }
+
+        private static bool ValidaMoedasIguals(Moeda moedaOrigem, Moeda moedaDestino)
+        {
+            return moedaOrigem.Sigla.Equals(moedaDestino.Sigla);
         }
 
         private static bool DecideTipoOperacao(double valor)
         {
-            return valor < 1;
+            return valor > 1;
         }
 
-        private static double CalculaConversaoParaDolar(Moeda moedaOrigem, double valor)
+        private static double CalculaConversaoParaDolar(Moeda moedaOrigem, double valorCotado)
         {
-            double Resultado = DecideTipoOperacao(moedaOrigem.Valor) ? valor * moedaOrigem.Valor : valor / moedaOrigem.Valor;
+            double resultadoOperacao = ArrumaCotacaoCasoMenorQueDolar(moedaOrigem.Valor);
+            double Resultado = DecideTipoOperacao(moedaOrigem.Valor) ? valorCotado / resultadoOperacao : valorCotado * resultadoOperacao;
             return Resultado;
         }
 
-        private static double CalculaConversaoParaMoedaDestino(Moeda moedaDestino, double valor, double origemConversao)
+        private static double CalculaConversaoParaMoedaDestino(Moeda moedaDestino, double origemConversao)
         {
-            double Resultado = DecideTipoOperacao(moedaDestino.Valor) ? moedaDestino.Valor * origemConversao : moedaDestino.Valor / origemConversao;
+            double resultadoOperacao = ArrumaCotacaoCasoMenorQueDolar(moedaDestino.Valor);
+            double Resultado = DecideTipoOperacao(moedaDestino.Valor) ? origemConversao * resultadoOperacao : origemConversao / resultadoOperacao;
             return Resultado;
+        }
+
+        private static double ArrumaCotacaoCasoMenorQueDolar(double valorMoeda)
+        {
+            double resultadoOperacao = valorMoeda;
+            if (valorMoeda < 1)
+            {
+                double USD = 1;
+                double USDPorcentagem = 1;
+                double moedaValor = valorMoeda;
+                resultadoOperacao = (USD * USDPorcentagem) / moedaValor;
+            }
+
+            return resultadoOperacao;
         }
     }
 }

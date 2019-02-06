@@ -40,8 +40,8 @@ $(function () {
                 $('#resultadoConversao #moedaDestinoCotacao').html(`${_data.moedaOrigem.valor}`);
                 $('#resultadoConversao #moedaOrigemCotacao').html(`${_data.moedaDestino.valor}`);
 
-                $('#resultadoConversao #quantidade').html(`<strong>Valor:</strong> ${_data.valor}`);
-                $('#resultadoConversao #resultado').html(`<strong>Resultado:</strong> ${_data.resultado.toFixed(4)}`);
+                $('#resultadoConversao #quantidade').html(`<strong>Valor:</strong> ${_data.moedaOrigem.sigla} ${_data.valor.toFixed(2)}`);
+                $('#resultadoConversao #resultado').html(`<strong>Resultado:</strong> ${_data.moedaDestino.sigla} ${_data.resultado.toFixed(2)}`);
             });    
     });
 });
