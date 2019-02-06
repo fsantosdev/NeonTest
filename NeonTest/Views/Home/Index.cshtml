@@ -1,9 +1,32 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Conversão Monetária";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    @ViewBag.Test
+    <h1 class="display-4">Conversão de Moedas</h1>
 </div>
+
+
+<form method="POST" id="converter">
+	<div class="row">
+		<div class="form-group col-sm">
+			<label for="moedaOrigem">Moeda Origem</label>
+			<select name="moedaOrigem" class="form-control" id="moedaOrigem">
+				<option value="">Selecione uma Moeda</option>
+			</select>
+		</div>
+		<div class="form-group col-sm">
+			<label for="moedaDestino">Moeda Destino</label>
+			<select name="moedaDestino" class="form-control" id="moedaDestino">
+				<option value="">Selecione uma Moeda</option>
+			</select>
+		</div>
+		<div class="form-group col-sm">
+			<label for="valor">Valor</label>
+			<input type="number" class="form-control" id="valor" min="0">
+		</div>
+		<div class="form-group col-sm">
+			<button type="submit" class="btn btn-primary mt-4">Faça a mágica</button>
+		</div>
+	</div>
+</form>
