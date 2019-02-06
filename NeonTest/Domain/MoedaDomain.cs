@@ -14,6 +14,8 @@ namespace NeonTest.Domain
         private const string BASE_URL = "http://www.apilayer.net/api/";
         private const string ACCESS_KEY = "access_key=f2a4deb9fa7acfe8e57bc92e48ccaa77";
 
+        public static object ResponseConversao { get; private set; }
+
         public static async Task<IList<Moeda>> ListagemMoedas()
         {
             MoedaListagemDTO MoedaListagemInstance = MoedaListagemDTO.GetInstance();
@@ -89,12 +91,13 @@ namespace NeonTest.Domain
         }
 
 
-        public static double Converte(Moeda moedaOrigem, Moeda moedaDestino, double valor)
+        public static ResponseConversao Converte(Moeda moedaOrigem, Moeda moedaDestino, double valor)
         {
             double origemConversao = CalculaConversaoParaDolar(moedaOrigem, valor);
             double destinoConversao = CalculaConversaoParaMoedaDestino(moedaDestino, valor, origemConversao);
+            ResponseConversao response = new ResponseConversao(moedaOrigem, moedaDestino, valor, destinoConversao);
 
-            return destinoConversao;
+            return response;
         }
 
         private static bool DecideTipoOperacao(double valor)

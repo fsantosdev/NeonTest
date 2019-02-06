@@ -27,12 +27,12 @@ namespace NeonTest.Controllers
         }
 
         [HttpPost]
-        public Response ConverterMoeda(Moeda moedaOrigem, Moeda moedaDestino, double valor)
+        public Response ConverterMoeda([FromBody] RequestConvesao request)
         {
             Response response = null;
             try
             {
-                dynamic responseConteudo = MoedaDomain.Converte(moedaOrigem, moedaDestino, valor);
+                dynamic responseConteudo = MoedaDomain.Converte(request.moedaOrigem, request.moedaDestino, request.valor);
                 response = new Response(true, 200, responseConteudo);
             }
             catch (Exception e)

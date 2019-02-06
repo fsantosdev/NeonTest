@@ -1,12 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NeonTest.Models
+﻿namespace NeonTest.Models
 {
     public class Moeda
     {
-        private Moeda()
+        public Moeda()
         {
+        }
+
+        public Moeda(string sigla, string nome, double valor)
+        {
+            this.Sigla = sigla;
+            this.Nome = nome;
+            this.Valor = valor;
         }
 
         public string Nome { get; set; }
