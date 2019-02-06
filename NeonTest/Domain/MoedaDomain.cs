@@ -113,7 +113,7 @@ namespace NeonTest.Domain
 
         private static double CalculaConversaoParaMoedaDestino(Moeda moedaDestino, double valor, double origemConversao)
         {
-            double Resultado = DecideTipoOperacao(moedaDestino.Valor) ? valor * origemConversao : valor / origemConversao;
+            double Resultado = DecideTipoOperacao(moedaDestino.Valor) ? moedaDestino.Valor * origemConversao : moedaDestino.Valor / origemConversao;
             return Resultado;
         }
     }
