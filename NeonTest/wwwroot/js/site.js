@@ -70,6 +70,7 @@ function requestFactory(_url, _method, _params, _callback) {
 
     $.ajax({
         url: `${ENV.BASE_URL}${_url}`,
+        contentType: "application/json",
         method: _method,
         data: _params
     })
