@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using NeonTest.Domain;
 using NeonTest.Models;
 using NeonTest.DTO;
 using System.Diagnostics;
@@ -9,14 +10,14 @@ using System.Linq;
 
 namespace NeonTest.Domain
 {
-    public class MoedaDomain
+    public class MoedaDomain : IMoedaDomain
     {
         private const string BASE_URL = "http://www.apilayer.net/api/";
         private const string ACCESS_KEY = "access_key=f2a4deb9fa7acfe8e57bc92e48ccaa77";
 
         public static object ResponseConversao { get; private set; }
 
-        public static async Task<IList<Moeda>> ListagemMoedas()
+        public static async Task<List<Moeda>> ListagemMoedas()
         {
             MoedaListagemDTO MoedaListagemInstance = MoedaListagemDTO.GetInstance();
             MoedaDTO MoedaDTOInstance = MoedaDTO.GetInstance();
@@ -91,7 +92,7 @@ namespace NeonTest.Domain
         }
 
 
-        public static ResponseConversao Converte(Moeda moedaOrigem, Moeda moedaDestino, double valor)
+        public ResponseConversao Converte(Moeda moedaOrigem, Moeda moedaDestino, double valor)
         {
             double resultado = double.MinValue;
             if (ValidaMoedasIguals(moedaOrigem, moedaDestino))

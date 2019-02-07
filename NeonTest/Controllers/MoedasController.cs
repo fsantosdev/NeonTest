@@ -32,7 +32,8 @@ namespace NeonTest.Controllers
             Response response = null;
             try
             {
-                dynamic responseConteudo = MoedaDomain.Converte(request.moedaOrigem, request.moedaDestino, request.valor);
+                MoedaDomain moeda = new MoedaDomain();
+                dynamic responseConteudo = moeda.Converte(request.moedaOrigem, request.moedaDestino, request.valor);
                 response = new Response(true, 200, responseConteudo);
             }
             catch (Exception e)
